@@ -1,0 +1,217 @@
+# Patitas Felices - API Serverless
+org: kevin1
+service: patitasfelices-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowedHeaders:
+        - Content-Type
+        - X-Amz-Date
+        - Authorization
+        - X-Api-Key
+        - X-Amz-Security-Token
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:Query
+      Resource:
+      - arn:aws:dynamodb:us-east-1:648908580448:table/UsuariosTable
+      - arn:aws:dynamodb:us-east-1:648908580448:table/UsuariosTable/index/email-index
+      - arn:aws:dynamodb:us-east-1:648908580448:table/MascotasTable
+      - arn:aws:dynamodb:us-east-1:648908580448:table/MascotasTable/index/userId-index  
+      - arn:aws:dynamodb:us-east-1:648908580448:table/VacunasTable
+      - arn:aws:dynamodb:us-east-1:648908580448:table/VacunasTable/index/mascotaId-index  
+      - arn:aws:dynamodb:us-east-1:648908580448:table/AlimentosTable
+
+functions:
+  # --- USUARIOS ---
+  registrarUsuario:
+    handler: src/usuarios/registrarUsuario.registrarUsuario
+    events:
+      - httpApi:
+          path: /usuarios
+          method: post
+          #  eliminado (ahora es global)
+
+  iniciarSesion:
+    handler: src/usuarios/iniciarSesion.iniciarSesion
+    events:
+      - httpApi:
+          path: /usuarios/login
+          method: post
+
+  # --- MASCOTAS ---
+  agregarMascota:
+    handler: src/mascotas/agregarMascota.agregarMascota
+    events:
+      - httpApi:
+          path: /mascotas
+          method: post
+        
+
+  obtenerMascotas:
+    handler: src/mascotas/obtenerMascotas.obtenerMascotas
+    events:
+      - httpApi:
+          path: /mascotas
+          method: get
+        
+
+  obtenerMascotaPorId:
+    handler: src/mascotas/obtenerMascotaPorId.obtenerMascotaPorId
+    events:
+      - httpApi:
+          path: /mascotas/{id}
+          method: get
+        
+
+  actualizarMascota:
+    handler: src/mascotas/actualizarMascota.actualizarMascota
+    events:
+      - httpApi:
+          path: /mascotas/{id}
+          method: put
+        
+
+  eliminarMascota:
+    handler: src/mascotas/eliminarMascota.eliminarMascota
+    events:
+      - httpApi:
+          path: /mascotas/{id}
+          method: delete
+        
+
+  # --- VACUNAS ---
+  agregarVacuna:
+    handler: src/vacunas/agregarVacuna.agregarVacuna
+    events:
+      - httpApi:
+          path: /vacunas
+          method: post
+        
+
+  obtenerVacunasPorMascota:
+    handler: src/vacunas/obtenerVacunasPorMascota.obtenerVacunasPorMascota
+    events:
+      - httpApi:
+          path: /vacunas/mascota/{mascotaId}
+          method: get
+        
+
+  # --- ALIMENTOS ---
+  agregarAlimento:
+    handler: src/alimentos/agregarAlimento.agregarAlimento
+    events:
+      - httpApi:
+          path: /alimentos
+          method: post
+        
+
+  obtenerAlimentosPorMascota:
+    handler: src/alimentos/obtenerAlimentosPorMascota.obtenerAlimentosPorMascota
+    events:
+      - httpApi:
+          path: /alimentos/mascota/{mascotaId}
+          method: get
+        
+
+  # --- CORS OPTIONS GLOBAL ---
+  corsOptions:
+    handler: src/corsOptions.corsOptions
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: options
+        
+
+resources:
+  Resources:
+    MascotasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MascotasTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: userId   
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:    
+          - IndexName: userId-index
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    UsuariosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: UsuariosTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: email-index
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    VacunasTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: VacunasTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: mascotaId
+            AttributeType: S     
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: mascotaId-index   
+            KeySchema:
+              - AttributeName: mascotaId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    AlimentosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AlimentosTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
