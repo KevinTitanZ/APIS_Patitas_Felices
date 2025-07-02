@@ -97,6 +97,7 @@ functions:
           method: delete
         
 
+
   # --- VACUNAS ---
   agregarVacuna:
     handler: src/vacunas/agregarVacuna.agregarVacuna
@@ -104,7 +105,6 @@ functions:
       - httpApi:
           path: /vacunas
           method: post
-        
 
   obtenerVacunasPorMascota:
     handler: src/vacunas/obtenerVacunasPorMascota.obtenerVacunasPorMascota
@@ -112,7 +112,27 @@ functions:
       - httpApi:
           path: /vacunas/mascota/{mascotaId}
           method: get
-        
+
+  obtenerVacunasPorUsuario:
+    handler: src/vacunas/obtenerVacunasPorUsuario.obtenerVacunasPorUsuario
+    events:
+      - httpApi:
+          path: /vacunas/usuario
+          method: get
+
+  actualizarVacuna:
+    handler: src/vacunas/actualizarVacuna.actualizarVacuna
+    events:
+      - httpApi:
+          path: /vacunas/{id}
+          method: put
+
+  eliminarVacuna:
+    handler: src/vacunas/eliminarVacuna.eliminarVacuna
+    events:
+      - httpApi:
+          path: /vacunas/{id}
+          method: delete
 
   # --- ALIMENTOS ---
   agregarAlimento:

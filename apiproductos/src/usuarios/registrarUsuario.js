@@ -1,11 +1,10 @@
-// === src/usuarios/registrarUsuario.js ===
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, PutCommand } = require('@aws-sdk/lib-dynamodb');
 const { v4: uuidv4 } = require('uuid');
 
 const client = new DynamoDBClient({ region: 'us-east-1' });
 const ddbDocClient = DynamoDBDocumentClient.from(client);
-
+// Inicio de la Api
 module.exports.registrarUsuario = async (event) => {
   try {
     const body = JSON.parse(event.body);

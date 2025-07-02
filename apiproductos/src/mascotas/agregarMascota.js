@@ -19,6 +19,7 @@ module.exports.agregarMascota = async (event) => {
       return { statusCode: 401, headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ error: 'Token inválido' }) };
     }
 
+    
     const body = JSON.parse(event.body);
     const id = uuidv4();
 
