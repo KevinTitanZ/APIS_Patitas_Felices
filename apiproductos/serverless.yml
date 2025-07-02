@@ -37,6 +37,7 @@ provider:
       - arn:aws:dynamodb:us-east-1:648908580448:table/VacunasTable
       - arn:aws:dynamodb:us-east-1:648908580448:table/VacunasTable/index/mascotaId-index  
       - arn:aws:dynamodb:us-east-1:648908580448:table/AlimentosTable
+      - arn:aws:dynamodb:us-east-1:648908580448:table/AlimentosTable/index/mascotaId-index
 
 functions:
   # --- USUARIOS ---
@@ -211,7 +212,16 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: mascotaId
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: mascotaId-index
+            KeySchema:
+              - AttributeName: mascotaId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
